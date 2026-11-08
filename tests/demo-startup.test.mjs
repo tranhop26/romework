@@ -126,8 +126,8 @@ test('demo sessions can switch client to freelancer, submit work, and return to 
     method: 'POST', headers: { cookie: freelancerCookie, 'Content-Type': 'application/json' },
     body: JSON.stringify({ onchainJobId: 0, deliverableHash: `0x${'a'.repeat(64)}` }),
   });
-  assert.equal(mockSubmit.status, 200);
-  assert.match((await mockSubmit.json()).txHash, /^0xdemo_submit_/);
+  assert.equal(mockSubmit.status, 410);
+  assert.equal((await mockSubmit.json()).code, 'ROME_EXTENSION_REQUIRED');
   const submitted = await fetch(`${appUrl}/api/jobs/${job.id}/submit-deliverable`, {
     method: 'POST', headers: { cookie: freelancerCookie, 'Content-Type': 'application/json' },
     body: JSON.stringify({ deliverableUrl: 'https://example.com/demo-result', deliverableNotes: 'Demo test result' }),
@@ -143,10 +143,12 @@ test('demo sessions can switch client to freelancer, submit work, and return to 
     method: 'POST', headers: { cookie: returnedClientCookie, 'Content-Type': 'application/json' },
     body: JSON.stringify({ onchainJobId: 0 }),
   });
-  assert.equal(mockApprove.status, 200);
-  assert.match((await mockApprove.json()).txHash, /^0xdemo_approve_/);
+  assert.equal(mockApprove.status, 410);
+  assert.equal((await mockApprove.json()).code, 'ROME_EXTENSION_REQUIRED');
   const approved = await fetch(`${appUrl}/api/jobs/${job.id}/approve`, { method: 'POST', headers: { cookie: returnedClientCookie } });
   assert.equal(approved.status, 200);
-  assert.equal((await approved.json()).status, 'approved');
+  const approvedDemo = await approved.json();
+  assert.equal(approvedDemo.status, 'approved');
+  assert.equal(approvedDemo.chainSettlement, false);
   assert.equal(fixture.tables.jobs.find(row => row.id === job.id).status, 'approved');
 });

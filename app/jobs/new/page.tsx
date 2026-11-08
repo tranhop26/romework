@@ -102,7 +102,7 @@ export default function NewJobPage() {
       <div>
         <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Create Job Milestone</h1>
         <p className="text-slate-500 text-sm mt-1">
-          Specify task requirements and criteria. Payout budget will lock in escrow once you hire a freelancer.
+          Specify requirements and a budget for a sample job.
         </p>
       </div>
 
@@ -185,7 +185,7 @@ export default function NewJobPage() {
           <Card className="bg-white border border-slate-200 shadow-sm rounded-xl">
             <CardHeader>
               <CardTitle className="text-lg font-bold text-slate-800">Success Criteria</CardTitle>
-              <CardDescription className="text-slate-500 text-xs">Define clear milestones and verification criteria. These are referenced by the AI Judge in dispute cases.</CardDescription>
+              <CardDescription className="text-slate-500 text-xs">Define a sample milestone and its verification criteria.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -218,7 +218,7 @@ export default function NewJobPage() {
           <Card className="bg-white border border-slate-200 shadow-sm rounded-xl">
             <CardHeader>
               <CardTitle className="text-lg font-bold text-slate-800">Timeline &amp; Budget</CardTitle>
-              <CardDescription className="text-slate-500 text-xs">Set your project deadline and the locked USDC milestones budget.</CardDescription>
+              <CardDescription className="text-slate-500 text-xs">Set the sample project deadline and milestone budget.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-5">
               <div className="space-y-2">

@@ -13,12 +13,15 @@ export async function POST(
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
-    const { applicationId, freelancerId, onchainJobId, txHash } = await request.json();
+    const { applicationId, freelancerId } = await request.json();
 
-    if (!applicationId || !freelancerId || onchainJobId === undefined || !txHash) {
+    if (!applicationId || !freelancerId) {
       return NextResponse.json({ message: 'Missing required parameters' }, { status: 400 });
     }
 
+    if (!session.email.endsWith('@demo.freelanceguard.app')) {
+      return NextResponse.json({ code: 'ROME_EXTENSION_REQUIRED', message: 'Use the Hadrian workroom for signed actions.' }, { status: 410 });
+    }
     const supabase = createAdminClient();
 
     // Verify current user is the client who posted the job
@@ -41,7 +44,11 @@ export async function POST(
     const { error: appUpdateError } = await supabase
       .from('applications')
       .update({ status: 'accepted' })
-      .eq('id', applicationId);
+      .eq('id', applicationId)
+      .eq('job_id', jobId)
+      .eq('freelancer_id', freelancerId)
+      .select('id')
+      .single();
 
     if (appUpdateError) {
       return NextResponse.json({ message: 'Failed to accept application', error: appUpdateError.message }, { status: 500 });
@@ -54,13 +61,11 @@ export async function POST(
       .eq('job_id', jobId)
       .neq('id', applicationId);
 
-    // 3. Update the job details with the freelancer, on-chain ID, transaction hash, and new status
+    // Record the selected freelancer in the demo database.
     const { data: updatedJob, error: jobUpdateError } = await supabase
       .from('jobs')
       .update({
         freelancer_id: freelancerId,
-        onchain_job_id: parseInt(onchainJobId),
-        create_tx_hash: txHash,
         status: 'in_progress',
         updated_at: new Date().toISOString(),
       })
@@ -86,7 +91,7 @@ export async function POST(
         .eq('id', session.user_id);
     }
 
-    return NextResponse.json(updatedJob);
+    return NextResponse.json({ ...updatedJob, simulation: true, chainSettlement: false });
   } catch (err: any) {
     return NextResponse.json({ message: err.message || 'Internal server error' }, { status: 500 });
   }

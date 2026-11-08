@@ -90,7 +90,7 @@ export function ApplyDialog({ jobId, defaultAmount, trigger }: ApplyDialogProps)
               required
             />
             <span className="text-[10px] text-slate-400 block">
-              Estimated network payout: ${(parseFloat(proposedAmount || '0') * 0.98).toFixed(2)} USDC (after 2% fee)
+              Sample proposal: ${parseFloat(proposedAmount || '0').toFixed(2)} USDC
             </span>
           </div>
 

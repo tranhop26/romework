@@ -13,6 +13,9 @@ export async function POST(
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
+    if (!session.email.endsWith('@demo.freelanceguard.app')) {
+      return NextResponse.json({ code: 'ROME_EXTENSION_REQUIRED', message: 'Use the Hadrian workroom for signed actions.' }, { status: 410 });
+    }
     const supabase = createAdminClient();
 
     // Verify current user is the client for this job
@@ -64,7 +67,7 @@ export async function POST(
       }
     }
 
-    return NextResponse.json(updatedJob);
+    return NextResponse.json({ ...updatedJob, simulation: true, chainSettlement: false });
   } catch (err: any) {
     return NextResponse.json({ message: err.message || 'Internal server error' }, { status: 500 });
   }

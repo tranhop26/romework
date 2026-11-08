@@ -26,7 +26,7 @@ export default function Home() {
 function LandingPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, setUser } = useAuthStore();
+  const { setUser } = useAuthStore();
   const [authOpen, setAuthOpen] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
   const [demoError, setDemoError] = useState<string | null>(null);
@@ -38,15 +38,6 @@ function LandingPageContent() {
       setAuthOpen(true);
     }
   }, [searchParams]);
-
-  // If already logged in, show CTA to go to dashboard
-  const handlePrimaryCta = () => {
-    if (user) {
-      router.push('/dashboard');
-    } else {
-      setAuthOpen(true);
-    }
-  };
 
   const handleDemoMode = async () => {
     if (demoPending.current) return;
@@ -86,22 +77,21 @@ function LandingPageContent() {
             <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold border border-blue-100">
                 <Sparkles className="h-3.5 w-3.5" />
-                <span>Now live on Arc Testnet</span>
+                <span>Rome Hadrian Testnet · G0</span>
               </div>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 leading-tight">
-                Get paid in minutes, <br />
-                <span className="text-blue-700">not weeks</span>
+                USDC escrow, <br />
+                <span className="text-blue-700">on Rome</span>
               </h1>
               <p className="text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto lg:mx-0">
-                AI-powered USDC escrow for global freelancers and clients, built on Arc.
-                Enjoy <strong>2% fees</strong> (vs. 15-20% on Upwork) and sub-3-second transaction settlement.
+                Test one freelance milestone with a MetaMask client and a Solana Devnet freelancer.
               </p>
               <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-4">
                 <Button 
-                  onClick={handlePrimaryCta}
+                  onClick={() => router.push('/rome')}
                   className="bg-blue-700 hover:bg-blue-800 text-white font-semibold py-3 px-8 rounded-lg text-base shadow-md transition-all flex items-center justify-center gap-2"
                 >
-                  {user ? 'Go to Dashboard' : 'Sign up as Freelancer'}
+                  Open Hadrian Workroom
                   <ArrowRight className="h-5 w-5" />
                 </Button>
                 <Button 
@@ -117,7 +107,7 @@ function LandingPageContent() {
               </div>
               {demoError && <p role="alert" className="text-sm text-red-700">{demoError}</p>}
               <p className="text-xs text-slate-500">
-                No crypto experience or seed phrases needed. Sign up with email in 10 seconds.
+                Connect through your browser extensions. Use test tokens only.
               </p>
             </div>
 
@@ -127,16 +117,16 @@ function LandingPageContent() {
                 <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-4">
                   <div className="flex items-center gap-2">
                     <Shield className="h-5 w-5 text-blue-500" />
-                    <span className="font-bold text-sm text-slate-300">FreelanceGuard Escrow</span>
+                    <span className="font-bold text-sm text-slate-300">RomeWork Escrow Preview</span>
                   </div>
                   <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-xs font-semibold">
-                    Escrow Locked
+                    Testnet Preview
                   </span>
                 </div>
                 <div className="space-y-4">
                   <div>
                     <span className="text-xs text-slate-500 uppercase block font-semibold">Contract Address</span>
-                    <span className="text-xs text-slate-300 font-mono">0xE0a2BDd5b0b0E75a...FE7a3D9803</span>
+                    <span className="text-xs text-slate-300 font-mono">Deployment pending</span>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -150,20 +140,20 @@ function LandingPageContent() {
                   </div>
                   <div className="border-t border-slate-800 pt-4 flex justify-between items-center">
                     <div>
-                      <span className="text-xs text-slate-500 block uppercase font-semibold">Amount Escrowed</span>
-                      <span className="text-2xl font-extrabold text-emerald-400">$1,200.00 USDC</span>
+                      <span className="text-xs text-slate-500 block uppercase font-semibold">G0 Test Cap</span>
+                      <span className="text-2xl font-extrabold text-emerald-400">1 test USDC</span>
                     </div>
                     <div className="text-right">
-                      <span className="text-xs text-slate-500 block uppercase font-semibold">Gas Fee Sponsors</span>
-                      <span className="text-xs text-blue-400 font-medium">Circle Paymaster</span>
+                      <span className="text-xs text-slate-500 block uppercase font-semibold">Wallet Networks</span>
+                      <span className="text-xs text-blue-400 font-medium">Hadrian + Devnet</span>
                     </div>
                   </div>
                   <div className="bg-slate-800/50 border border-slate-700/50 p-3 rounded-lg flex items-start gap-2.5">
                     <Scale className="h-4 w-4 text-orange-500 mt-0.5 shrink-0" />
                     <div>
-                      <span className="text-xs font-bold text-orange-400 block">AI Judge Arbitration</span>
+                      <span className="text-xs font-bold text-orange-400 block">Explicit Claim and Sweep</span>
                       <p className="text-[10px] text-slate-400 leading-normal">
-                        Arbitration is pre-authorized. Disputes are automatically resolved by our AI Judge Agent using verifiable proof.
+                        Approval grants a claim. The freelancer claims and then sweeps to a verified Solana token account.
                       </p>
                     </div>
                   </div>
@@ -179,20 +169,20 @@ function LandingPageContent() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 text-center divide-y lg:divide-y-0 lg:divide-x divide-slate-200">
             <div className="py-2 lg:py-0">
-              <span className="text-2xl font-extrabold text-slate-900 block">⚡ Sub-3-Sec</span>
-              <span className="text-xs text-slate-500 font-semibold uppercase">Escrow Settlement</span>
+              <span className="text-2xl font-extrabold text-slate-900 block">Hadrian</span>
+              <span className="text-xs text-slate-500 font-semibold uppercase">Rome Testnet</span>
             </div>
             <div className="py-2 lg:py-0 pt-4 lg:pt-0">
-              <span className="text-2xl font-extrabold text-slate-900 block">💰 2.0% Fee</span>
-              <span className="text-xs text-slate-500 font-semibold uppercase">vs. 15%+ on Upwork</span>
+              <span className="text-2xl font-extrabold text-slate-900 block">1 USDC</span>
+              <span className="text-xs text-slate-500 font-semibold uppercase">Test Cap per Milestone</span>
             </div>
             <div className="py-2 lg:py-0 pt-4 lg:pt-0">
-              <span className="text-2xl font-extrabold text-slate-900 block">🔥 $0 Gas</span>
-              <span className="text-xs text-slate-500 font-semibold uppercase">Sponsored for Users</span>
+              <span className="text-2xl font-extrabold text-slate-900 block">Two Wallets</span>
+              <span className="text-xs text-slate-500 font-semibold uppercase">MetaMask + Solana</span>
             </div>
             <div className="py-2 lg:py-0 pt-4 lg:pt-0">
-              <span className="text-2xl font-extrabold text-slate-900 block">🛡️ AI Judge</span>
-              <span className="text-xs text-slate-500 font-semibold uppercase">Decentralized Arbitration</span>
+              <span className="text-2xl font-extrabold text-slate-900 block">One Milestone</span>
+              <span className="text-xs text-slate-500 font-semibold uppercase">G0 Escrow</span>
             </div>
           </div>
         </div>
@@ -206,7 +196,7 @@ function LandingPageContent() {
               Freelancers lose money and time
             </h2>
             <p className="text-lg text-slate-600">
-              Traditional cross-border freelance platforms charge exorbitant fees and hold your hard-earned money hostage.
+              The workroom records funding, delivery and payout as separate steps.
             </p>
           </div>
 
@@ -215,7 +205,7 @@ function LandingPageContent() {
               <div className="h-10 w-10 rounded-lg bg-red-50 flex items-center justify-center text-red-600">
                 <DollarSign className="h-6 w-6" />
               </div>
-              <h3 className="text-lg font-bold text-slate-900">15% - 20% Cut</h3>
+              <h3 className="text-lg font-bold text-slate-900">Funding</h3>
               <p className="text-sm text-slate-600 leading-relaxed">
                 Upwork and Fiverr take a massive chunk of your earnings, cutting deep into freelancer profit margins.
               </p>
@@ -224,18 +214,18 @@ function LandingPageContent() {
               <div className="h-10 w-10 rounded-lg bg-red-50 flex items-center justify-center text-red-600">
                 <Zap className="h-6 w-6" />
               </div>
-              <h3 className="text-lg font-bold text-slate-900">2 - 4 Weeks Delay</h3>
+              <h3 className="text-lg font-bold text-slate-900">Payout</h3>
               <p className="text-sm text-slate-600 leading-relaxed">
-                Withdrawing funds to international banks takes weeks and incurs hefty exchange spreads and wire transfer fees.
+                Verify the claim and the final Solana token account separately.
               </p>
             </div>
             <div className="p-6 bg-white rounded-xl border border-slate-200/80 shadow-sm space-y-4">
               <div className="h-10 w-10 rounded-lg bg-red-50 flex items-center justify-center text-red-600">
                 <Globe className="h-6 w-6" />
               </div>
-              <h3 className="text-lg font-bold text-slate-900">Locked Reputation</h3>
+              <h3 className="text-lg font-bold text-slate-900">Evidence</h3>
               <p className="text-sm text-slate-600 leading-relaxed">
-                Your history is locked inside the platform. If you leave, you lose all your ratings, reviews, and client trust history.
+                The workroom exports public hashes, receipts and balance snapshots for the test run.
               </p>
             </div>
           </div>
@@ -250,7 +240,7 @@ function LandingPageContent() {
               Seamless Escrow Flow
             </h2>
             <p className="text-lg text-slate-600">
-              Security is guaranteed. Funds remain locked in smart contracts until both parties agree or the AI Judge rules.
+              Test funds follow the immutable terms in the Hadrian escrow.
             </p>
           </div>
 
@@ -260,9 +250,9 @@ function LandingPageContent() {
               <div className="h-16 w-16 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center font-bold text-lg text-blue-700">
                 1
               </div>
-              <h3 className="text-xl font-bold text-slate-900">Post &amp; Apply</h3>
+              <h3 className="text-xl font-bold text-slate-900">Set Terms</h3>
               <p className="text-sm text-slate-600 max-w-xs">
-                Clients post jobs and freelancers submit applications detailing their proposed terms and budget.
+                Client and freelancer addresses, amount and terms hash are fixed at deploy.
               </p>
             </div>
 
@@ -273,7 +263,7 @@ function LandingPageContent() {
               </div>
               <h3 className="text-xl font-bold text-slate-900">Accept &amp; Lock</h3>
               <p className="text-sm text-slate-600 max-w-xs">
-                Upon accepting an application, the client approves and locks the budget in the on-chain JobEscrow contract.
+                The freelancer accepts the terms. The client then locks the agreed amount in escrow.
               </p>
             </div>
 
@@ -282,9 +272,9 @@ function LandingPageContent() {
               <div className="h-16 w-16 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center font-bold text-lg text-blue-700">
                 3
               </div>
-              <h3 className="text-xl font-bold text-slate-900">Deliver &amp; Release</h3>
+              <h3 className="text-xl font-bold text-slate-900">Deliver, Claim &amp; Sweep</h3>
               <p className="text-sm text-slate-600 max-w-xs">
-                The freelancer submits work deliverables. The client approves to automatically release the escrowed USDC.
+                The freelancer submits a delivery hash. Client approval makes the amount claimable.
               </p>
             </div>
           </div>
@@ -296,10 +286,10 @@ function LandingPageContent() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
             <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-              Engineered for the Agentic Economy
+              Inside the Hadrian Workroom
             </h2>
             <p className="text-lg text-slate-600">
-              Modern architecture combining zero-friction onboarding with blockchain security.
+              Check each role, wallet and receipt during the testnet run.
             </p>
           </div>
 
@@ -308,9 +298,9 @@ function LandingPageContent() {
               <div className="h-8 w-8 rounded bg-blue-50 text-blue-700 flex items-center justify-center">
                 <Mail className="h-5 w-5" />
               </div>
-              <h3 className="font-bold text-slate-900">Email Sign-up</h3>
+              <h3 className="font-bold text-slate-900">Extension Wallets</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Social and email logins powered by Circle App Kit automatically generate smart accounts behind the scenes.
+                Client uses MetaMask. Freelancer connects a Solana Devnet wallet.
               </p>
             </div>
 
@@ -318,9 +308,9 @@ function LandingPageContent() {
               <div className="h-8 w-8 rounded bg-blue-50 text-blue-700 flex items-center justify-center">
                 <Scale className="h-5 w-5" />
               </div>
-              <h3 className="font-bold text-slate-900">AI Judge Agent</h3>
+              <h3 className="font-bold text-slate-900">Immutable Terms</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                No long legal processes. Verifiable job success criteria are parsed by our AI Judge to resolve disputes in minutes.
+                The freelancer accepts the exact terms hash before the client funds the contract.
               </p>
             </div>
 
@@ -328,9 +318,9 @@ function LandingPageContent() {
               <div className="h-8 w-8 rounded bg-blue-50 text-blue-700 flex items-center justify-center">
                 <Globe className="h-5 w-5" />
               </div>
-              <h3 className="font-bold text-slate-900">On-Chain Reputation</h3>
+              <h3 className="font-bold text-slate-900">Deployment Verification</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Reputation metadata is saved in ERC-8004 registries on-chain, creating a portable profile independent of platform locks.
+                The workroom checks deployed code and immutable roles against the local artifact.
               </p>
             </div>
 
@@ -338,9 +328,9 @@ function LandingPageContent() {
               <div className="h-8 w-8 rounded bg-blue-50 text-blue-700 flex items-center justify-center">
                 <Zap className="h-5 w-5" />
               </div>
-              <h3 className="font-bold text-slate-900">Gasless UX</h3>
+              <h3 className="font-bold text-slate-900">Read Test Balances</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Circle Paymaster API sponsors contract deployment and interaction fees, eliminating gas token onboarding.
+                Check gas and token balances before signing with your wallet.
               </p>
             </div>
 
@@ -348,9 +338,9 @@ function LandingPageContent() {
               <div className="h-8 w-8 rounded bg-blue-50 text-blue-700 flex items-center justify-center">
                 <Globe className="h-5 w-5" />
               </div>
-              <h3 className="font-bold text-slate-900">Global Accessibility</h3>
+              <h3 className="font-bold text-slate-900">Verified Solana Destination</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Send payouts worldwide instantly via USDC stablecoins, bypassing costly regional wire limitations.
+                The explicit sweep checks the mint and owner of the destination token account.
               </p>
             </div>
 
@@ -358,9 +348,9 @@ function LandingPageContent() {
               <div className="h-8 w-8 rounded bg-blue-50 text-blue-700 flex items-center justify-center">
                 <Lock className="h-5 w-5" />
               </div>
-              <h3 className="font-bold text-slate-900">Sub-second Finality</h3>
+              <h3 className="font-bold text-slate-900">Receipt Recovery</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Powered by Arc Network, transactions complete in milliseconds with immediate cryptographic finality.
+                Reconcile the original transaction after a timeout before sending again.
               </p>
             </div>
           </div>
@@ -382,8 +372,8 @@ function LandingPageContent() {
               Try FreelanceGuard in Sandbox
             </h2>
             <p className="text-slate-400 max-w-2xl mx-auto text-sm md:text-base">
-              Explore the entire client-freelancer dashboard lifecycle on the Arc Testnet. 
-              No wallet setup or test tokens required. Auth with email mock.
+              Explore the original FreelanceGuard dashboard with local sample data.
+              Sandbox actions only update sample data. Hadrian transactions are in the workroom.
             </p>
             <div>
               <Button
@@ -408,14 +398,14 @@ function LandingPageContent() {
           <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-60 grayscale hover:opacity-85 transition-opacity">
             <div className="flex items-center gap-1.5 text-slate-900 font-extrabold text-sm">
               <Shield className="h-5 w-5 text-blue-700" />
-              <span>ARC NETWORK</span>
+              <span>ROME HADRIAN</span>
             </div>
             <div className="flex items-center gap-1.5 text-slate-900 font-extrabold text-sm">
               <UserCheck className="h-5 w-5 text-blue-700" />
-              <span>CIRCLE PLATFORM</span>
+              <span>SOLANA DEVNET</span>
             </div>
             <div className="flex items-center gap-1.5 text-slate-900 font-extrabold text-sm">
-              <span>OPENAI GPT</span>
+              <span>WALLET STANDARD</span>
             </div>
             <div className="flex items-center gap-1.5 text-slate-900 font-extrabold text-sm">
               <span>NEXT.JS + TAILWIND</span>

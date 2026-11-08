@@ -1,0 +1,2 @@
+# The pinned compiler artifact hashes the exact Solidity source bytes.
+contracts/rome/RomeWorkG0.sol -text

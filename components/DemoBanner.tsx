@@ -9,6 +9,7 @@ import { useState, useEffect, Suspense } from 'react';
 
 function DemoBannerContent() {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const { user, logout, setUser } = useAuthStore();
   const [loading, setLoading] = useState(false);
@@ -22,7 +23,7 @@ function DemoBannerContent() {
     }
   }, [user, searchParams]);
 
-  if (!showBanner || !user) return null;
+  if (pathname === '/rome' || !showBanner || !user) return null;
 
   const isClient = user.email === 'sarah@demo.freelanceguard.app';
   const roleName = isClient ? 'Sarah Chen (Client)' : 'Minh Nguyen (Freelancer)';
@@ -87,7 +88,7 @@ function DemoBannerContent() {
     <div className="w-full bg-slate-900 border-b border-slate-800 px-4 py-2 text-white flex flex-col sm:flex-row items-center justify-between gap-3 text-xs z-50 relative select-none">
       <div className="flex items-center gap-1.5 font-medium text-slate-200">
         <Sparkles className="h-4 w-4 text-orange-500 animate-pulse" />
-        <span>🎭 You are in <strong>Demo Sandbox Mode</strong> as <span className="text-blue-400 font-bold">{roleName}</span></span>
+        <span>🎭 You are in <strong>Demo Sandbox · local sample data</strong> as <span className="text-blue-400 font-bold">{roleName}</span></span>
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <Button

@@ -19,6 +19,9 @@ export async function POST(
       return NextResponse.json({ message: 'Deliverable URL is required' }, { status: 400 });
     }
 
+    if (!session.email.endsWith('@demo.freelanceguard.app')) {
+      return NextResponse.json({ code: 'ROME_EXTENSION_REQUIRED', message: 'Use the Hadrian workroom for signed actions.' }, { status: 410 });
+    }
     const supabase = createAdminClient();
 
     // Verify current user is the freelancer for this job
@@ -53,7 +56,7 @@ export async function POST(
       return NextResponse.json({ message: 'Failed to submit deliverable', error: updateError.message }, { status: 500 });
     }
 
-    return NextResponse.json(updatedJob);
+    return NextResponse.json({ ...updatedJob, simulation: true, chainSettlement: false });
   } catch (err: any) {
     return NextResponse.json({ message: err.message || 'Internal server error' }, { status: 500 });
   }

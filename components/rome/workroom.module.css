@@ -1,0 +1,25 @@
+@reference "../../app/globals.css";
+
+.steps {
+  @apply flex flex-wrap gap-2;
+}
+
+.steps li {
+  @apply rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600;
+}
+
+.steps :global(.done) {
+  @apply border-emerald-200 bg-emerald-50 text-emerald-800;
+}
+
+.steps :global(.current) {
+  @apply border-blue-200 bg-blue-50 font-bold text-blue-800;
+}
+
+.workroom pre {
+  @apply max-h-52 overflow-auto whitespace-pre-wrap break-all rounded-md p-3 font-mono text-xs leading-relaxed;
+}
+
+.workroom pre:not(:global(#log)) {
+  @apply bg-slate-100 text-slate-700;
+}

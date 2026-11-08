@@ -12,20 +12,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'FreelanceGuard — AI-powered USDC escrow for freelancers',
-  description: 'Get paid in minutes, not weeks. 2% fee vs 15-20% on Upwork. AI Judge for disputes. Built on Arc blockchain.',
-  keywords: ['freelance', 'USDC', 'escrow', 'Arc blockchain', 'AI arbitration', 'ERC-8004'],
-  openGraph: {
-    title: 'FreelanceGuard',
-    description: 'AI-powered USDC escrow for freelancers on Arc',
-    images: ['/og-image.png'],
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'FreelanceGuard',
-    description: 'AI-powered USDC escrow for freelancers on Arc',
-  },
+  title: 'RomeWork — Hadrian testnet escrow',
+  description: 'A single-milestone USDC escrow workroom with MetaMask and Solana wallets.',
 };
 
 export default function RootLayout({

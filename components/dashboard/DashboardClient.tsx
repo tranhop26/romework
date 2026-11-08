@@ -33,7 +33,7 @@ export function DashboardClient({ profile, initialClientJobs, initialFreelancerJ
   const activeFreelancerJobsCount = freelancerJobs.filter(j => ['in_progress', 'submitted', 'disputed'].includes(j.status)).length;
   const totalEarned = freelancerJobs
     .filter(j => ['approved', 'resolved'].includes(j.status))
-    .reduce((sum, j) => sum + (Number(j.amount_usdc) * 0.98), 0); // 2% fee deducted
+    .reduce((sum, j) => sum + Number(j.amount_usdc), 0);
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -45,7 +45,7 @@ export function DashboardClient({ profile, initialClientJobs, initialFreelancerJ
             <Sparkles className="h-5 w-5 text-blue-700 animate-pulse" />
           </h1>
           <p className="text-slate-500 text-sm mt-1">
-            Manage your escrow workrooms, payments, and track reputation.
+            Browse sample workrooms, budgets and profiles.
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -91,7 +91,7 @@ export function DashboardClient({ profile, initialClientJobs, initialFreelancerJ
             </div>
             <div>
               <span className="text-xs text-slate-400 font-bold uppercase block">
-                {profile.role === 'client' ? 'Total Locked/Paid' : 'Cumulative Earnings'}
+                {profile.role === 'client' ? 'Sample Budget Total' : 'Sample Earnings'}
               </span>
               <span className="text-2xl font-extrabold text-slate-800 font-mono">
                 {profile.role === 'client' && `$${formatUsdc(totalSpent * 1000000)}`}
@@ -137,7 +137,7 @@ export function DashboardClient({ profile, initialClientJobs, initialFreelancerJ
                 <ClipboardList className="mx-auto h-12 w-12 text-slate-400" />
                 <h3 className="text-lg font-bold text-slate-800">No jobs posted yet</h3>
                 <p className="text-slate-500 text-sm max-w-sm mx-auto">
-                  Lock a milestone budget in a secure smart contract escrow and hire the best freelancers globally.
+                  Post a sample milestone with a budget and acceptance criteria.
                 </p>
                 {(profile.role === 'client' || profile.role === 'both') && (
                   <Link href="/jobs/new">
@@ -163,7 +163,7 @@ export function DashboardClient({ profile, initialClientJobs, initialFreelancerJ
                 <ClipboardList className="mx-auto h-12 w-12 text-slate-400" />
                 <h3 className="text-lg font-bold text-slate-800">No workrooms active</h3>
                 <p className="text-slate-500 text-sm max-w-sm mx-auto">
-                  Apply for open contracts, deliver outstanding work, and build your portable on-chain reputation.
+                  Explore sample contracts, submissions and profiles.
                 </p>
                 <Link href="/jobs/browse">
                   <Button className="bg-blue-700 hover:bg-blue-800 text-white font-semibold">

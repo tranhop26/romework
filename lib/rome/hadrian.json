@@ -1,0 +1,18 @@
+{
+  "chainId": 200010,
+  "rpc": "https://hadrian.testnet.romeprotocol.xyz/",
+  "solanaRpc": "https://api.devnet.solana.com",
+  "explorer": "https://via-hadrian.testnet.romeprotocol.xyz/",
+  "programId": "RPTWwELXAY4KC9ZPHhaxp7Sq1hHtU3HNEgLbSegCcWf",
+  "wrapper": "0xbce339ba4c3a8de3bb8af1c5539e6ac11da3112d",
+  "mint": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+  "decimals": 6,
+  "tokenProgram": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+  "genesis": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+  "sourceCommits": {
+    "sdk": "33e904d2d3e546d709834f43c3987311a7ed4f7d",
+    "registry": "db0bf1f331c9b81be62d09f180965a64746b5991",
+    "solidityReference": "a5a166c906370c97fd1c8594f16b8f2c96fa95aa"
+  },
+  "wrapperCodeHash": "0xd8b777261b2907218b9a679ea8baadcae2201160cc9ea37e258aa6ba4ae08e52"
+}

@@ -15,13 +15,11 @@ import { formatDistanceToNow } from 'date-fns';
 import { createClient } from '@/lib/supabase/client';
 import { Job, User, Application, Message } from '@/lib/types';
 import { formatUsdc, shortenAddress } from '@/lib/utils/format';
-import { acceptApplicationOnChain, submitDeliverableOnChain, approveJobOnChain, disputeJobOnChain } from '@/lib/contracts/escrow-actions';
 import { 
   Shield, Scale, Clock, MessageSquare, ExternalLink, Loader2, 
   Send, AlertTriangle, CheckCircle, FileText, Landmark
 } from 'lucide-react';
 import { ApplyDialog } from './ApplyDialog';
-import { keccak256, stringToBytes } from 'viem';
 
 
 interface JobWorkroomClientProps {
@@ -113,43 +111,23 @@ export function JobWorkroomClient({ job: initialJob, currentUserSession, isClien
   const handleAcceptApplication = async () => {
     if (!acceptingApp) return;
     setActionLoading(true);
-    toast.loading('Checking allowance and preparing transactions...', { id: 'escrow' });
+    toast.loading('Accepting sample application…', { id: 'escrow' });
 
     try {
-      // 1. Calculate Unix Timestamp deadline (EVM uses seconds)
-      const deadDate = new Date(job.deadline);
-      const deadlineUnix = Math.floor(deadDate.getTime() / 1000);
-
-      // 2. Compute criteria hash
-      const criteriaHash = keccak256(stringToBytes(job.criteria));
-
-      // 3. Trigger on-chain approval & escrow creation (routes to mock endpoint if in mock mode)
-      const { jobId: onchainJobId, txHash } = await acceptApplicationOnChain({
-        freelancerWalletAddress: acceptingApp.freelancer?.wallet_address || '',
-        amount: job.amount_usdc,
-        deadline: deadlineUnix,
-        criteriaHash,
-      });
-
-      toast.loading('Escrow created. Syncing database workroom...', { id: 'escrow' });
-
-      // 4. Update Supabase
       const res = await fetch(`/api/jobs/${job.id}/accept-application`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           applicationId: acceptingApp.id,
           freelancerId: acceptingApp.freelancer_id,
-          onchainJobId,
-          txHash,
         }),
       });
 
       if (!res.ok) {
-        throw new Error('Escrow successfully created on-chain, but sync with database failed. Please contact support.');
+        throw new Error('Sample application update failed.');
       }
 
-      toast.success('USDC Escrow locked on Arc Testnet. Workroom is open!', { id: 'escrow' });
+      toast.success('Sample application accepted.', { id: 'escrow' });
       setAcceptingApp(null);
       
       // Refresh local page state
@@ -157,8 +135,6 @@ export function JobWorkroomClient({ job: initialJob, currentUserSession, isClien
       setJob({
         ...job,
         freelancer_id: updatedJob.freelancer_id,
-        onchain_job_id: updatedJob.onchain_job_id,
-        create_tx_hash: updatedJob.create_tx_hash,
         status: updatedJob.status,
       });
       router.refresh();
@@ -177,18 +153,9 @@ export function JobWorkroomClient({ job: initialJob, currentUserSession, isClien
     }
 
     setActionLoading(true);
-    toast.loading('Submitting deliverable proof on-chain...', { id: 'deliverable' });
+    toast.loading('Saving sample delivery…', { id: 'deliverable' });
 
     try {
-      // 1. Calculate keccak256 hash of deliverable URL + notes
-      const deliverableHash = keccak256(stringToBytes(deliverableUrl + deliverableNotes));
-
-      // 2. Submit on-chain (routes to mock endpoint if in mock mode)
-      await submitDeliverableOnChain(job.onchain_job_id || 0, deliverableHash);
-
-      toast.loading('On-chain registered. Syncing workroom status...', { id: 'deliverable' });
-
-      // 3. Update Supabase
       const res = await fetch(`/api/jobs/${job.id}/submit-deliverable`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -196,7 +163,7 @@ export function JobWorkroomClient({ job: initialJob, currentUserSession, isClien
       });
 
       if (!res.ok) {
-        throw new Error('Work registered on-chain, but database sync failed.');
+        throw new Error('Sample delivery could not be saved.');
       }
 
       toast.success('Deliverables successfully submitted to client!', { id: 'deliverable' });
@@ -217,24 +184,18 @@ export function JobWorkroomClient({ job: initialJob, currentUserSession, isClien
   };
 
   const handleApproveEscrow = async () => {
-    if (!confirm('Are you sure you want to approve this deliverable? Payout will be sent to the freelancer instantly.')) return;
+    if (!confirm('Approve this delivery in the sample workroom?')) return;
     
     setActionLoading(true);
-    toast.loading('Releasing escrowed USDC on-chain...', { id: 'release' });
+    toast.loading('Saving sample approval…', { id: 'release' });
 
     try {
-      // 1. Approve on-chain (routes to mock endpoint if in mock mode)
-      await approveJobOnChain(job.onchain_job_id || 0);
-
-      toast.loading('Escrow released. Updating workroom status...', { id: 'release' });
-
-      // 2. Update Supabase
       const res = await fetch(`/api/jobs/${job.id}/approve`, { method: 'POST' });
       if (!res.ok) {
-        throw new Error('Payout sent on-chain, but database sync failed.');
+        throw new Error('Sample approval could not be saved.');
       }
 
-      toast.success('USDC released! Job marked completed.', { id: 'release' });
+      toast.success('Sample job marked approved.', { id: 'release' });
       
       const updatedJob = await res.json();
       setJob({
@@ -256,15 +217,9 @@ export function JobWorkroomClient({ job: initialJob, currentUserSession, isClien
     }
 
     setActionLoading(true);
-    toast.loading('Publishing dispute case on-chain...', { id: 'dispute' });
+    toast.loading('Saving sample dispute…', { id: 'dispute' });
 
     try {
-      // 1. File on-chain (routes to mock endpoint if in mock mode)
-      await disputeJobOnChain(job.onchain_job_id || 0, disputeReason);
-
-      toast.loading('Dispute filed on-chain. Syncing database...', { id: 'dispute' });
-
-      // 2. Update Supabase
       const res = await fetch(`/api/jobs/${job.id}/dispute`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -272,31 +227,13 @@ export function JobWorkroomClient({ job: initialJob, currentUserSession, isClien
       });
 
       if (!res.ok) {
-        throw new Error('Dispute logged on-chain, but database sync failed.');
+        throw new Error('Sample dispute could not be saved.');
       }
 
-      // 3. Immediately trigger AI Judge Agent
-      toast.loading('🤖 AI Judge is reviewing your dispute... (this may take 15 seconds)', { id: 'dispute' });
-      const judgeRes = await fetch(`/api/judge`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ jobId: job.id }),
-      });
-
-      if (!judgeRes.ok) {
-        throw new Error('AI Judge failed to resolve the dispute.');
-      }
-
-      toast.success('Dispute resolved by AI Judge! Payout updated.', { id: 'dispute' });
+      const updatedJob = await res.json();
+      setJob({ ...job, status: updatedJob.status });
       setDisputeModalOpen(false);
-
-      const judgeData = await judgeRes.json();
-      setJob({
-        ...job,
-        status: 'resolved',
-        ai_verdict: judgeData.verdict,
-        resolve_tx_hash: judgeData.verdict.tx_hash,
-      });
+      toast.success('Sample dispute recorded', { id: 'dispute' });
       router.refresh();
     } catch (err: any) {
       toast.error(err.message || 'Dispute filing failed', { id: 'dispute' });
@@ -311,8 +248,8 @@ export function JobWorkroomClient({ job: initialJob, currentUserSession, isClien
       case 'in_progress': return 'In Progress';
       case 'submitted': return 'Awaiting Review';
       case 'approved': return 'Released & Approved';
-      case 'disputed': return 'AI Arbitration';
-      case 'resolved': return 'AI Resolved';
+      case 'disputed': return 'Sample dispute';
+      case 'resolved': return 'Sample resolved';
       case 'refunded': return 'Refunded';
       default: return status;
     }
@@ -338,20 +275,11 @@ export function JobWorkroomClient({ job: initialJob, currentUserSession, isClien
           </p>
         </div>
         <div className="flex flex-col items-end">
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Escrow Amount</span>
+          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Sample Budget</span>
           <span className="text-3xl font-extrabold text-slate-800 font-mono">
             ${formatUsdc(job.amount_usdc * 1000000)} <span className="text-xs font-semibold text-slate-500 font-sans">USDC</span>
           </span>
-          {job.create_tx_hash && (
-            <a 
-              href={job.create_tx_hash.startsWith('0xdemo') ? 'https://testnet.arcscan.app/address/0xE0a2BDd5b0b0E75aFfAEcf331bEE13FE7a3D9803' : `https://testnet.arcscan.app/tx/${job.create_tx_hash}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[10px] text-blue-700 font-bold hover:underline flex items-center gap-0.5 mt-1"
-            >
-              Onchain Escrow <ExternalLink className="h-2.5 w-2.5" />
-            </a>
-          )}
+
         </div>
       </div>
 
@@ -396,65 +324,6 @@ export function JobWorkroomClient({ job: initialJob, currentUserSession, isClien
                   </div>
                 </div>
               )}
-
-              {job.status === 'resolved' && job.ai_verdict && (
-                <div className="space-y-4 pt-4 border-t border-slate-100 bg-orange-50/25 p-4 rounded-lg border border-orange-100 mt-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-orange-600 uppercase tracking-wide flex items-center gap-1.5">
-                      <Scale className="h-4 w-4" /> AI Arbitration Verdict
-                    </span>
-                    {job.resolve_tx_hash && (
-                      <a
-                        href={job.resolve_tx_hash.startsWith('0xdemo') ? 'https://testnet.arcscan.app/address/0xE0a2BDd5b0b0E75aFfAEcf331bEE13FE7a3D9803' : `https://testnet.arcscan.app/tx/${job.resolve_tx_hash}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[10px] text-blue-700 font-bold hover:underline flex items-center gap-0.5"
-                      >
-                        On-chain Verdict <ExternalLink className="h-2.5 w-2.5" />
-                      </a>
-                    )}
-                  </div>
-                  <div className="text-xs space-y-3">
-                    <div className="flex flex-wrap items-center gap-4">
-                      <div>
-                        <span className="font-semibold text-slate-500 block">Verdict decision:</span>
-                        <span className="px-2 py-0.5 rounded bg-orange-100 text-orange-700 font-bold text-[10px]">
-                          {job.ai_verdict.verdict}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="font-semibold text-slate-500 block">Payout Ratio:</span>
-                        <span className="font-bold">{job.ai_verdict.freelancer_percentage}% Freelancer / {100 - job.ai_verdict.freelancer_percentage}% Client</span>
-                      </div>
-                      <div>
-                        <span className="font-semibold text-slate-500 block">Confidence Score:</span>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <div className="w-16 bg-slate-200 h-1.5 rounded-full overflow-hidden">
-                            <div className="bg-orange-500 h-full" style={{ width: `${(job.ai_verdict.confidence * 100).toFixed(0)}%` }} />
-                          </div>
-                          <span className="font-bold">{(job.ai_verdict.confidence * 100).toFixed(0)}%</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div>
-                      <span className="font-semibold text-slate-500 block">AI Reasoning:</span>
-                      <p className="text-slate-600 leading-relaxed mt-1 bg-white p-3 rounded border border-slate-200/50">
-                        {job.ai_verdict.reasoning}
-                      </p>
-                    </div>
-                    {job.ai_verdict.key_evidence && job.ai_verdict.key_evidence.length > 0 && (
-                      <div>
-                        <span className="font-semibold text-slate-500 block mb-1">Key Evidence Cited:</span>
-                        <ul className="list-disc pl-4 space-y-1 text-slate-600">
-                          {job.ai_verdict.key_evidence.map((evidence, idx) => (
-                            <li key={idx}>{evidence}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
             </CardContent>
           </Card>
         </div>
@@ -467,6 +336,8 @@ export function JobWorkroomClient({ job: initialJob, currentUserSession, isClien
               <CardTitle className="text-sm font-bold text-slate-800 uppercase tracking-wide">Workroom Actions</CardTitle>
             </CardHeader>
             <CardContent className="p-5">
+              <p className="mb-3 text-xs text-slate-600">These actions update local sample data. For a signed transaction, open the Hadrian workroom.</p>
+              <a href="/rome" className="mb-4 block text-sm font-semibold text-blue-700 underline">Open Hadrian Workroom</a>
               {/* Client / Open */}
               {isClient && job.status === 'open' && (
                 <div className="space-y-4">
@@ -500,7 +371,7 @@ export function JobWorkroomClient({ job: initialJob, currentUserSession, isClien
                             className="w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold py-1.5 rounded text-xs"
                             disabled={actionLoading}
                           >
-                            Accept &amp; Fund Escrow
+                            Accept Sample Application
                           </Button>
                         </div>
                       ))}
@@ -598,7 +469,7 @@ export function JobWorkroomClient({ job: initialJob, currentUserSession, isClien
                 <div className="space-y-3">
                   <div className="p-3 bg-emerald-50 text-emerald-800 border border-emerald-100 rounded-lg text-xs leading-normal">
                     <CheckCircle className="h-4.5 w-4.5 text-emerald-600 block mb-1" />
-                    <strong>Milestone Delivered!</strong> Review the submission details on the left, and approve payment release or open a dispute case.
+                    <strong>Milestone Delivered!</strong> Review the sample submission and record approval or a dispute.
                   </div>
                   <div className="grid grid-cols-2 gap-3 pt-2">
                     <Button 
@@ -606,7 +477,7 @@ export function JobWorkroomClient({ job: initialJob, currentUserSession, isClien
                       className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold py-2 rounded"
                       disabled={actionLoading}
                     >
-                      Approve &amp; Release
+                      Approve Sample Delivery
                     </Button>
                     <Button 
                       onClick={() => setDisputeModalOpen(true)}
@@ -625,7 +496,7 @@ export function JobWorkroomClient({ job: initialJob, currentUserSession, isClien
                   <Clock className="mx-auto h-5 w-5 text-slate-400 animate-pulse" />
                   <h4 className="text-xs font-bold text-slate-700 uppercase">Under Client Review</h4>
                   <p className="text-[10px] text-slate-500 leading-normal">
-                    Your deliverable is currently being reviewed by the client. Payout will release automatically upon approval.
+                    The sample delivery is awaiting client review.
                   </p>
                 </div>
               )}
@@ -634,9 +505,9 @@ export function JobWorkroomClient({ job: initialJob, currentUserSession, isClien
               {job.status === 'disputed' && (
                 <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg text-center space-y-3">
                   <Scale className="mx-auto h-6 w-6 text-orange-500 animate-bounce" />
-                  <h4 className="text-xs font-bold text-orange-700 uppercase">AI Judge Arbitration Active</h4>
+                  <h4 className="text-xs font-bold text-orange-700 uppercase">Sample Dispute Recorded</h4>
                   <p className="text-[10px] text-slate-600 leading-normal">
-                    The client has disputed this milestone budget. Our AI Judge Agent is currently parsing the success criteria and verifying deliverables proof.
+                    The client recorded a dispute in the sample workroom.
                   </p>
                 </div>
               )}
@@ -647,7 +518,7 @@ export function JobWorkroomClient({ job: initialJob, currentUserSession, isClien
                   <CheckCircle className="mx-auto h-6 w-6 text-emerald-600" />
                   <h4 className="text-xs font-bold text-emerald-700 uppercase font-extrabold">Milestone Approved</h4>
                   <p className="text-[10px] text-slate-600 leading-normal">
-                    The client has approved this project. Escrowed USDC has been successfully released to the freelancer.
+                    The client marked the sample project approved.
                   </p>
                 </div>
               )}
@@ -656,9 +527,9 @@ export function JobWorkroomClient({ job: initialJob, currentUserSession, isClien
               {job.status === 'resolved' && (
                 <div className="bg-slate-100 border border-slate-200 p-4 rounded-lg text-center space-y-2">
                   <Landmark className="mx-auto h-6 w-6 text-slate-500" />
-                  <h4 className="text-xs font-bold text-slate-700 uppercase font-extrabold">AI Arbitrated Resolved</h4>
+                  <h4 className="text-xs font-bold text-slate-700 uppercase font-extrabold">Sample Case Resolved</h4>
                   <p className="text-[10px] text-slate-600 leading-normal">
-                    This dispute has been settled on-chain by the AI Judge Agent. Payouts have been distributed.
+                    The sample case has a resolved status.
                   </p>
                 </div>
               )}
@@ -737,7 +608,7 @@ export function JobWorkroomClient({ job: initialJob, currentUserSession, isClien
               </div>
               <DialogTitle className="text-center text-lg font-bold text-slate-900">Lock Milestone Budget</DialogTitle>
               <DialogDescription className="text-center text-slate-500 text-xs">
-                You are about to approve this proposal and lock budget funds in escrow.
+                You are about to accept this sample application.
               </DialogDescription>
             </DialogHeader>
 
@@ -762,7 +633,7 @@ export function JobWorkroomClient({ job: initialJob, currentUserSession, isClien
                   ${formatUsdc((acceptingApp.proposed_amount || job.amount_usdc) * 1000000)} <span className="text-xs font-semibold text-slate-500 font-sans">USDC</span>
                 </span>
                 <span className="text-[10px] text-slate-400 block mt-0.5">
-                  Locked budget is securely deposited on the Arc Testnet. Gas is sponsored.
+                  This budget belongs to the sample job.
                 </span>
               </div>
             </div>
@@ -781,7 +652,7 @@ export function JobWorkroomClient({ job: initialJob, currentUserSession, isClien
                 className="bg-blue-700 hover:bg-blue-800 text-white font-semibold"
                 disabled={actionLoading}
               >
-                {actionLoading ? 'Funding...' : 'Confirm & Fund Escrow'}
+                {actionLoading ? 'Saving…' : 'Confirm Sample Acceptance'}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -797,7 +668,7 @@ export function JobWorkroomClient({ job: initialJob, currentUserSession, isClien
             </div>
             <DialogTitle className="text-center text-lg font-bold text-slate-900">Open Dispute Case</DialogTitle>
             <DialogDescription className="text-center text-slate-500 text-xs">
-              File a dispute claim. Budget funds will remain locked in the contract until the AI Judge Agent issues a verdict.
+              Record a dispute in the local sample workroom.
             </DialogDescription>
           </DialogHeader>
 

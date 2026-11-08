@@ -28,7 +28,7 @@ export function Navbar() {
             <div className="flex items-center">
               <Link href="/" className="flex items-center gap-2 font-bold text-lg text-slate-900">
                 <Shield className="h-6 w-6 text-blue-700" />
-                <span>FreelanceGuard</span>
+                <span>RomeWork</span>
               </Link>
             </div>
 
@@ -69,6 +69,7 @@ export function Navbar() {
 
             {/* Right Side Widgets / Actions */}
             <div className="hidden md:flex items-center gap-4">
+              <Link href="/rome" className="text-sm font-semibold text-blue-700 hover:underline">Hadrian Workroom</Link>
               {user ? (
                 <>
                   {user.wallet_address && <WalletBalance address={user.wallet_address} />}
@@ -128,7 +129,8 @@ export function Navbar() {
 
             {/* Mobile Menu Button */}
             <div className="flex md:hidden items-center gap-2">
-              {user && user.wallet_address && <WalletBalance address={user.wallet_address} />}
+              {!isActive('/rome') && <Link href="/rome" className="text-sm font-semibold text-blue-700 hover:underline">Workroom</Link>}
+              {!isActive('/rome') && user?.wallet_address && <WalletBalance address={user.wallet_address} />}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-700 focus:outline-none"
